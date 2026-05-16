@@ -35,9 +35,54 @@ export const getLeads = async (
     res: Response
 ): Promise<void> => {
     try {
-        const leads = await Lead.find().sort({
-            createdAt: -1,
-        });
+        const {
+            status,
+            source,
+            search,
+            sort,
+        } = req.query;
+
+        const query: any = {};
+
+        if (status) {
+            query.status = status;
+        }
+
+        if (source) {
+            query.source = source;
+        }
+
+        if (search) {
+            query.$or = [
+                {
+                    name: {
+                        $regex: search,
+                        $options: "i",
+                    },
+                },
+                {
+                    email: {
+                        $regex: search,
+                        $options: "i",
+                    },
+                },
+            ];
+        }
+
+        let sortOption = {};
+
+        if (sort === "oldest") {
+            sortOption = {
+                createdAt: 1,
+            };
+        } 
+        else {
+            sortOption = {
+                createdAt: -1,
+            };
+        }
+
+        const leads = await Lead.find(query).sort(sortOption);
 
         res.status(200).json({
             count: leads.length,
