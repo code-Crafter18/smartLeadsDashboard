@@ -40,6 +40,7 @@ export const getLeads = async (
             source,
             search,
             sort,
+            page = "1",
         } = req.query;
 
         const query: any = {};
@@ -82,9 +83,24 @@ export const getLeads = async (
             };
         }
 
-        const leads = await Lead.find(query).sort(sortOption);
+        const pageNumber = parseInt(page as string, 10);
+
+        const limit = 10;
+        const skip = (pageNumber - 1) * limit;
+
+        const totalLeads = await Lead.countDocuments(query);
+
+        const leads = await Lead.find(query)
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalLeads / limit);
 
         res.status(200).json({
+            currentPage: pageNumber,
+            totalPages,
+            totalLeads,
             count: leads.length,
             leads,
         });
