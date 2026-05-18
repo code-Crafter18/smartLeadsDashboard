@@ -79,14 +79,3 @@ A full-stack Lead Management Dashboard built using the MERN stack with TypeScrip
 - bcrypt
 
 
-# Project Structure
-
-smart-leads-dashboard/
-│
-├── client/
-│
-├── server/
-│
-├── docker-compose.yml
-│
-└── README.md
