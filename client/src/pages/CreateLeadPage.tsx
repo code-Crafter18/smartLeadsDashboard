@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +8,13 @@ import API from "../api/axios";
 
 const CreateLeadPage = () => {
     const navigate = useNavigate();
+
+    const [darkMode] =
+        useState(
+            localStorage.getItem(
+                "darkMode"
+            ) === "true"
+        );
 
     const [name, setName] = useState("");
 
@@ -22,6 +29,13 @@ const CreateLeadPage = () => {
 
     const [error, setError] =
         useState("");
+
+    useEffect(() => {
+        document.body.style.backgroundColor =
+            darkMode ? "#111827" : "#f3f4f6";
+        document.body.style.color =
+            darkMode ? "#ffffff" : "#000000";
+    }, [darkMode]);
 
     const handleSubmit = async (
         e: React.FormEvent
@@ -62,13 +76,29 @@ const CreateLeadPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4">
-            <div className="bg-white w-full max-w-xl rounded-3xl shadow-xl p-8">
+        <div
+            className={`min-h-screen flex justify-center items-center px-4 transition-all ${
+                darkMode
+                    ? "bg-[#111827] text-white"
+                    : "bg-gray-100 text-black"
+            }`}
+        >
+            <div
+                className={`w-full max-w-xl rounded-3xl shadow-xl p-8 ${
+                    darkMode
+                        ? "bg-[#1f2937]"
+                        : "bg-white"
+                }`}
+            >
                 <button
                     onClick={() =>
                         navigate(-1)
                     }
-                    className="flex items-center gap-2 mb-6 text-gray-600 hover:text-black"
+                    className={`flex items-center gap-2 mb-6 transition ${
+                        darkMode
+                            ? "text-gray-300 hover:text-white"
+                            : "text-gray-600 hover:text-black"
+                    }`}
                 >
                     <FaArrowLeft />
 
@@ -92,7 +122,11 @@ const CreateLeadPage = () => {
                                 e.target.value
                             )
                         }
-                        className="w-full border border-gray-300 rounded-xl px-4 py-3"
+                        className={`w-full border rounded-xl px-4 py-3 outline-none ${
+                            darkMode
+                                ? "bg-[#374151] border-gray-600 text-white placeholder:text-gray-400"
+                                : "bg-white border-gray-300 text-black"
+                        }`}
                         required
                     />
 
@@ -105,7 +139,11 @@ const CreateLeadPage = () => {
                                 e.target.value
                             )
                         }
-                        className="w-full border border-gray-300 rounded-xl px-4 py-3"
+                        className={`w-full border rounded-xl px-4 py-3 outline-none ${
+                            darkMode
+                                ? "bg-[#374151] border-gray-600 text-white placeholder:text-gray-400"
+                                : "bg-white border-gray-300 text-black"
+                        }`}
                         required
                     />
 
@@ -116,7 +154,11 @@ const CreateLeadPage = () => {
                                 e.target.value
                             )
                         }
-                        className="w-full border border-gray-300 rounded-xl px-4 py-3"
+                        className={`w-full border rounded-xl px-4 py-3 outline-none ${
+                            darkMode
+                                ? "bg-[#374151] border-gray-600 text-white placeholder:text-gray-400"
+                                : "bg-white border-gray-300 text-black"
+                        }`}
                     >
                         <option>
                             Website

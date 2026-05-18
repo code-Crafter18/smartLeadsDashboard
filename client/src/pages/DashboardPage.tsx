@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import API from "../api/axios";
-import DeleteModal from "../components/DeleteModal";
+import LogoutModal from "../components/LogoutModal";
 import Pagination from "../components/Pagination";
 import useDebounce from "../hooks/useDebounce";
 import exportCSV from "../utils/exportCSV";
@@ -21,6 +21,9 @@ const DashboardPage = () => {
     const [leads, setLeads] = useState<Lead[]>([]);
 
     const [loading, setLoading] =
+        useState(true);
+
+    const [initialLoad, setInitialLoad] =
         useState(true);
 
     const [error, setError] = useState("");
@@ -54,11 +57,8 @@ const DashboardPage = () => {
             ) === "true"
         );
 
-    const [showDeleteModal, setShowDeleteModal] =
+    const [showLogoutModal, setShowLogoutModal] =
         useState(false);
-
-    const [selectedLeadId, setSelectedLeadId] =
-        useState("");
 
     const debouncedSearch =
         useDebounce(search, 500);
@@ -135,42 +135,49 @@ const DashboardPage = () => {
         } 
         finally {
             setLoading(false);
+            setInitialLoad(false);
         }
     };
 
-    const handleDelete = async (
-        id: string
-    ) => {
-        try {
-            await API.delete(
-                `/leads/${id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            fetchLeads();
-            setSelectedLeadId("");
-        } 
-        catch (err: any) {
-            setError(
-                err.response?.data?.message ||
-                    "Delete failed"
-            );
-        }
-    };
 
     useEffect(() => {
         fetchLeads();
     }, [status, source, debouncedSearch, sort, currentPage]);
+
+    useEffect(() => {
+        document.body.style.backgroundColor =
+            darkMode ? "#111827" : "#f3f4f6";
+        document.body.style.color =
+            darkMode ? "#ffffff" : "#000000";
+    }, [darkMode]);
 
     const logout = () => {
         localStorage.clear();
 
         window.location.href = "/";
     };
+
+    if (loading && initialLoad) {
+        return (
+            <div
+                className={`min-h-screen flex items-center justify-center transition-all duration-300 ${
+                    darkMode
+                        ? "bg-[#111827] text-white"
+                        : "bg-gray-100 text-black"
+                }`}
+            >
+                <div
+                    className={`px-6 py-4 rounded-2xl shadow ${
+                        darkMode
+                            ? "bg-[#1f2937] text-gray-200"
+                            : "bg-white text-gray-700"
+                    }`}
+                >
+                    Loading leads...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div
@@ -264,7 +271,9 @@ const DashboardPage = () => {
                     </button>
 
                     <button
-                        onClick={logout}
+                        onClick={() =>
+                            setShowLogoutModal(true)
+                        }
                         className="bg-red-500 text-white px-4 py-2 rounded-xl"
                     >
                         Logout
@@ -386,14 +395,26 @@ const DashboardPage = () => {
 
                 {/* Error */}
                 {error && (
-                    <div className="bg-red-100 text-red-600 p-4 rounded-xl mb-4">
+                    <div
+                        className={`p-4 rounded-xl mb-4 ${
+                            darkMode
+                                ? "bg-red-950/40 text-red-200"
+                                : "bg-red-100 text-red-600"
+                        }`}
+                    >
                         {error}
                     </div>
                 )}
 
                 {/* Loading */}
                 {loading && (
-                    <div className="bg-white p-6 rounded-2xl shadow text-center">
+                    <div
+                        className={`p-6 rounded-2xl shadow text-center ${
+                            darkMode
+                                ? "bg-[#1f2937] text-gray-200"
+                                : "bg-white text-gray-700"
+                        }`}
+                    >
                         Loading...
                     </div>
                 )}
@@ -456,6 +477,16 @@ const DashboardPage = () => {
                                                 }`}
                                             >
                                                 Source
+                                            </th>
+
+                                            <th
+                                                className={`p-4 text-left font-semibold ${
+                                                    darkMode
+                                                        ? "text-gray-200"
+                                                        : "text-gray-700"
+                                                }`}
+                                            >
+                                                View
                                             </th>
                                         </tr>
                                     </thead>
@@ -528,37 +559,17 @@ const DashboardPage = () => {
                                                                 : "text-gray-700"
                                                         }`}
                                                     >
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    navigate(
-                                                                        `/lead/${lead._id}`
-                                                                    )
-                                                                }
-                                                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition"
-                                                            >
-                                                                View
-                                                            </button>
-
-                                                            {isAdmin && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() =>
-                                                                        {
-                                                                            setSelectedLeadId(
-                                                                                lead._id
-                                                                            );
-
-                                                                            setShowDeleteModal(true);
-                                                                        }
-                                                                    }
-                                                                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition"
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            )}
-                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/lead/${lead._id}`
+                                                                )
+                                                            }
+                                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition"
+                                                        >
+                                                            View
+                                                        </button>
                                                     </td>
 
                                                 </tr>
@@ -577,19 +588,13 @@ const DashboardPage = () => {
                         </>
                     )}
 
-                <DeleteModal
-                    isOpen={showDeleteModal}
-                    darkMode={darkMode}
+                <LogoutModal
+                    isOpen={showLogoutModal}
                     onClose={() =>
-                        setShowDeleteModal(false)
+                        setShowLogoutModal(false)
                     }
-                    onConfirm={() => {
-                        handleDelete(
-                            selectedLeadId
-                        );
-
-                        setShowDeleteModal(false);
-                    }}
+                    onConfirm={logout}
+                    darkMode={darkMode}
                 />
             </div>
         </div>
