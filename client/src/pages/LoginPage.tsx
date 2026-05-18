@@ -54,14 +54,7 @@ const LoginPage = () => {
                 JSON.stringify(response.data.user)
             );
 
-            if (
-                response.data.user.role === "admin"
-            ) {
-                navigate("/admin-dashboard");
-            } 
-            else {
-                navigate("/sales-dashboard");
-            }
+            navigate("/dashboard");
         } 
         catch (err: any) {
             setError(

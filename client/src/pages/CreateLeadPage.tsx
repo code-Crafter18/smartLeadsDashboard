@@ -48,7 +48,7 @@ const CreateLeadPage = () => {
                 }
             );
 
-            navigate("/sales-dashboard");
+            navigate("/dashboard");
         } 
         catch (err: any) {
             setError(

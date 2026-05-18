@@ -6,9 +6,10 @@ import {
 
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import AdminDashboard from "./pages/AdminDashboard";
-import SalesDashboard from "./pages/SalesDashboard";
+import DashboardPage from "./pages/DashboardPage";
 import CreateLeadPage from "./pages/CreateLeadPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LeadDetailsPage from "./pages/LeadDetailsPage";
 
 function App() {
     return (
@@ -20,13 +21,31 @@ function App() {
                 />
 
                 <Route
-                    path="/admin-dashboard"
-                    element={<AdminDashboard />}
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "admin",
+                                "sales",
+                            ]}
+                        >
+                            <DashboardPage />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
-                    path="/sales-dashboard"
-                    element={<SalesDashboard />}
+                    path="/lead/:id"
+                    element={
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "admin",
+                                "sales",
+                            ]}
+                        >
+                            <LeadDetailsPage />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
